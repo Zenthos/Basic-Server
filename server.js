@@ -3,7 +3,6 @@ const os = require('os');
 
 const app = express();
 const net = os.networkInterfaces();
-const ip = net?.ens160 ? net['ens160'][0]['address'] : 'localhost';
 const port = 8000;
 
 app.get('/', (req, res) => {
@@ -11,5 +10,12 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server Started. \nListening on ${ip}:${port}`);
+  console.log(`Server Started.`);
+  for (const interface of Object.values(net)) {
+    const ipv4s = interface.filter((info) => info.family === 'IPv4' || info.family === 4);
+
+    for (const { address } of ipv4s) {
+      console.log(`Listening on ${address}:${port}`);
+    }
+  }
 })
