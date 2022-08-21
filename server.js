@@ -1,20 +1,23 @@
-const express = require('express');
-const os = require('os');
+import isDocker from 'is-docker';
+import express from 'express';
+import os from 'os';
 
 const app = express();
 const net = os.networkInterfaces();
+const usingDocker = isDocker();
 const port = 8000;
 
 app.get('/', (req, res) => {
-  res.send(`${os.hostname()}\n`);
+  res.send(`${usingDocker ? 'docker-' : ''}${os.hostname()}\n`);
 });
 
 app.listen(port, () => {
-  console.log(`Server Started.`);
-  for (const interface of Object.values(net)) {
-    const ipv4s = interface.filter((info) => info.family === 'IPv4' || info.family === 4);
+  console.log(`${usingDocker ? 'Docker ' : ''}Server Started.`);
+  for (const inter of Object.values(net)) {
+    const ipv4s = inter.filter((info) => info.family === 'IPv4' || info.family === 4);
 
     for (const { address } of ipv4s) {
+      if (address === '127.0.0.1') continue;
       console.log(`Listening on ${address}:${port}`);
     }
   }
